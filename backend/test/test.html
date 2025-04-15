@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chat Room</title>
+  <style>
+    body { font-family: Arial; max-width: 600px; margin: 0 auto; }
+    #chat { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll; }
+    #chat li { margin-bottom: 10px; }
+    #join-section { margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+  <h2>Join a Chat Room</h2>
+  <div id="join-section">
+    <input id="username" type="text" placeholder="Your name" />
+    <input id="room" type="text" placeholder="Room name" />
+    <button onclick="joinRoom()">Join</button>
+  </div>
+
+  <ul id="chat"></ul>
+
+  <div id="message-section" style="display: none;">
+    <input id="messageInput" type="text" placeholder="Type a message" />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <script>
+    let ws;
+
+    function joinRoom() {
+      const username = document.getElementById("username").value;
+      const room = document.getElementById("room").value;
+
+      if (!username || !room) {
+        alert("Enter both username and room");
+        return;
+      }
+
+      const url = `ws://localhost:8000/ws/chat/${room}/${username}`;
+      ws = new WebSocket(url);
+
+      ws.onopen = () => {
+        document.getElementById("join-section").style.display = "none";
+        document.getElementById("message-section").style.display = "block";
+        console.log("✅ Connected to room:", room);
+      };
+
+      ws.onmessage = (event) => {
+        const chat = document.getElementById("chat");
+        const message = document.createElement("li");
+        message.innerText = event.data;
+        chat.appendChild(message);
+        chat.scrollTop = chat.scrollHeight;
+      };
+
+      ws.onclose = () => {
+        alert("Disconnected from server.");
+      };
+    }
+
+    function sendMessage() {
+      const input = document.getElementById("messageInput");
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(input.value);
+        input.value = "";
+      }
+    }
+  </script>
+</body>
+</html>
