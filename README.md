@@ -1,4 +1,4 @@
-# Full-Stack-Developer-Interview-Assignment
+#Assignment
 
 Please note that the assignments are located in separate branches:
 
